@@ -1,6 +1,8 @@
 package configs
 
 import (
+	"fmt"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -8,7 +10,8 @@ import (
 var DB *gorm.DB
 
 func ConnectDb() {
-	db, err := gorm.Open(mysql.Open("root:elder@tcp(localhost:1010)/gin-api?charset=tru"), &gorm.Config{})
+	connection := fmt.Sprintf("%v:%v@tcp(%v)/%v?%v", ENV.DB_USERNAME, ENV.DB_PASSWORD, ENV.DB_URL, ENV.DB_NAME, "charset=utf8mb4&parseTime=True&loc=Local")
+	db, err := gorm.Open(mysql.Open(connection), &gorm.Config{})
 
 	if err != nil {
 		panic("Failed connect db")
