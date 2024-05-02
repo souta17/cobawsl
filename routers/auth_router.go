@@ -18,4 +18,5 @@ func AuthRouter(api *gin.RouterGroup) {
 	// logic untuk mengeksekusi repositori sama service
 	authHandler := handlers.NewAuthHandler(authService)
 	api.POST("/register", authHandler.Register)
+	api.POST("/login", authHandler.Login)
 }

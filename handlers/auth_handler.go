@@ -36,3 +36,26 @@ func (h *authHandler) Register(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, response)
 }
+
+func (h *authHandler) Login(c *gin.Context) {
+	var login dto.LoginRequest
+	err := c.ShouldBindJSON(&login)
+	if err != nil {
+		handlerError.HandlerError(c, &handlerError.BadRequestError{
+			Message: err.Error(),
+		})
+		return
+	}
+	result, err := h.service.Login(&login)
+	if err != nil {
+		handlerError.HandlerError(c, err)
+		return
+	}
+	res := helpers.Response(dto.ResponseParams{
+		StatusCode: http.StatusOK,
+		Message:    "login has been succesful",
+		Data:       result,
+	})
+
+	c.JSON(http.StatusOK, res)
+}

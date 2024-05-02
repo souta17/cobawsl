@@ -10,6 +10,7 @@ import (
 
 type AuthService interface {
 	Register(req *dto.RegisterRequest) error
+	Login(req *dto.LoginRequest) (*dto.LoginResponse, error)
 }
 
 type authService struct {
@@ -52,4 +53,30 @@ func (s *authService) Register(req *dto.RegisterRequest) error {
 		return &handlerError.InternalServerError{Message: err.Error()}
 	}
 	return err
+}
+
+func (s *authService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
+	var data dto.LoginResponse
+
+	user, err := s.repository.GetUserByEmail(req.Email)
+	if err != nil {
+		return nil, &handlerError.NotfoundError{
+			Message: "wrong email or password",
+		}
+	}
+	if err := helpers.ComparePassword(user.Password, req.Password); err != nil {
+		return nil, &handlerError.NotfoundError{
+			Message: "wrong email or password",
+		}
+	}
+	token, err := helpers.GenerateToken(user)
+	if err != nil {
+		return nil, &handlerError.InternalServerError{Message: err.Error()}
+	}
+	data = dto.LoginResponse{
+		ID:    user.ID,
+		Name:  user.Email,
+		Token: token,
+	}
+	return &data, nil
 }
